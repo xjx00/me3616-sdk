@@ -1,0 +1,5 @@
+2018-08-22：
+关于flash读写问题：
+在SDK\sdk\examples\flash文件夹内把flash.c里面的宏定义修改为FLASH_TEST_BASE    0x00298000
+
+-G版本是128K（客户版本存储空间）+128K（客户数据存储空间），

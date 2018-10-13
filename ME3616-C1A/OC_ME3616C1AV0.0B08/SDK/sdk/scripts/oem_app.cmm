@@ -1,0 +1,73 @@
+SYStem.RESet
+SYStem.CPU CORTEXM4
+SYStem.CONFIG SWDP ON
+sys.config memoryaccessport 3
+
+system.option enreset off
+system.option trst off
+SYStem.JtagClock 1MHz
+
+;sys.o cflush on
+
+SYStem.Attach
+break
+;SYStem.Up
+
+setup.IMASKHLL ON
+setup.IMASKASM ON
+
+Break.Select Program OnChip
+Break.Select Hll OnChip
+Break.Select Spot OnChip
+Break.Select Read OnChip
+Break.Select Write OnChip
+
+; Clear symbol table
+sYmbol.RESet                                
+
+;config JTAG
+D.S SD:0xA20E0094        %LE %LONG 0x76867682
+D.S SD:0xA20E0098        %LE %LONG 0x76867682
+D.S SD:0xA20E009C        %LE %LONG 0x76867682
+
+;PND all on
+D.S SD:0xa2010320        %LE %LONG 0xfffffff
+D.S SD:0xa2010324        %LE %LONG 0xfffffff
+D.S SD:0xa2010328        %LE %LONG 0xfffffff
+D.S SD:0xA20A0020        %LE %LONG 0xfffffff
+D.S SD:0xA21D0010        %LE %LONG 0xfffffff
+
+;disable watch dog
+D.S SD:0xA2090000        %LE %LONG 0x11
+
+;EMI init
+;D.S SD:0x0        %LE %LONG 0x5a5a5a5a
+;D.S SD:0x4        %LE %LONG 0x5a5a5a5a
+;D.S SD:0xA00500A0 %LE %LONG 0x0d030000
+;D.S SD:0xA0050030 %LE %LONG 0x0
+;D.S SD:0xA0050048 %LE %LONG 0x1e0000 
+
+;disable boot slave
+;D.S SD:0xA21E0008 %LE %LONG 0x0
+
+;disable cache 
+;D.S SD:0xE0180000 %LE %LONG 0x0
+
+Local &start &end
+&start=clock.seconds()
+
+&end=clock.seconds()
+Print "Elapsed time is " &end-&start    " seconds"
+
+; ===================================================================
+; load the binary symbol
+; ===================================================================
+D.LOAD.ELF ..\NBIOT_SDK\out\mt2625_evb\nbiot_m2m_demo\nbiot_m2m_demo.elf /nocode /noclear
+D.LOAD.ELF .\bin\hello.elf /nocode /noclear
+
+PRINT "initializing FreeRTOS support..."
+TASK.CONFIG C:/T32/demo/arm/kernel/freertos/freertos.t32       ; load FreeRTOS awareness
+MENU.ReProgram C:/T32/demo/arm/kernel/freertos/freertos.men    ; load FreeRTOS menu
+HELP.FILTER.Add rtosfreertos   ; add FreeRTOS awareness manual to filtered help
+
+
